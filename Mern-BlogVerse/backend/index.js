@@ -3,7 +3,7 @@ const app = express();
 const session = require("express-session");
 const cookie = require("cookie-parser");
 const jwt=require("jsonwebtoken");
-
+const PORT=process.env.PORT||3000
 const cors = require('cors');
 app.use(cors(
     {
@@ -16,9 +16,11 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 connectDB();
 const postRoutes = require("./routes/postRoutes");
+const userRoutes = require("./routes/userRoutes");
 const cookieParser = require('cookie-parser');
 app.use("/api/posts", postRoutes);
 app.use(cookieParser());
+app.use("/api/users", userRoutes);
 
 app.use((req, res, next) => {
     console.log("this is a middleware");
