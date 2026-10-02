@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
 import NavBar from './NavBar'
-import { Link } from 'react-router-dom'
+import { Link,useNavigate } from 'react-router-dom'
 import { KeyRound, Mail, Eye, EyeOff } from 'lucide-react'
+import { useAuth } from './AuthContext'
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -17,7 +20,7 @@ const Login = () => {
     setSuccess('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     let newErrors = {};
     if (!formData.email) newErrors.email = 'Please enter your email';
@@ -29,7 +32,17 @@ const Login = () => {
     }
 
     // Placeholder success behaviour - replace with real auth call
-    setSuccess('Signed in successfully');
+     try {
+      const { ok, data } = await login(formData.email, formData.password);
+      if (!ok) {
+        setError(data?.message || "Login failed");
+        return;
+      }
+      setSuccess("Signed in successfully");
+      navigate("/home");
+    } catch {
+      setError("Cannot connect to backend.");
+    }
   };
 
   const toggleShowPassword = () => setShowPassword((p) => !p);

@@ -1,17 +1,19 @@
 import React from 'react'
 import NavBar from "./NavBar"
-import { Link } from 'react-router-dom'
+import { Link,useNavigate } from 'react-router-dom'
 import { CircleUser } from 'lucide-react';
 import { KeyRound } from 'lucide-react';
 import { Eye } from 'lucide-react';
 import { EyeOff } from 'lucide-react';
 import { useState } from 'react';
-
+import { useAuth } from './AuthContext';
 
 // const[var,setVar]=useState('')
 
 // {var && <h1>Var is false</h1>}
 const SignUp = () => {
+    const navigate = useNavigate();
+    const { signup } = useAuth();
     const [formData, setFormData] = useState({
         fullName: "",
         email: "",
@@ -29,8 +31,8 @@ const SignUp = () => {
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
     // numbers.map((num)=>num*num)
-    const handleSubmit = (event) => {
-        event.preventDefault();
+    const handleSubmit =async (event) => {
+       event.preventDefault();
 
         let newErrors = {}
 
@@ -49,9 +51,12 @@ const SignUp = () => {
             newErrors.confirmPassword = "Your passwords did not match"
         }
 
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-        } else {
+        try{
+            const {ok,data}=await signup (formData.fullName,formData.email,formData.password)
+            if(!ok){
+                setError(data?.message || "Signup failed")
+                return;
+            }
             setSuccess("Your acount has been created successfully")
             setFormData({
                 fullName: "",
@@ -59,6 +64,11 @@ const SignUp = () => {
                 password: "",
                 confirmPassword: ""
             })
+            setTimeout(()=>{
+                navigate("/home")
+            },800);
+        }catch{
+            setError("Cannot connect to backend.");
 
         }
         // if(!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword){
@@ -150,7 +160,7 @@ const SignUp = () => {
                             value={formData.confirmPassword}
                             onChange={handleChange}
                             name="confirmPassword"
-                            type={showConfirmPassword ? "password" : "text"}
+                            type={showConfirmPassword ? "text" : "password"}
                             placeholder='Confirm Your Password'
                             className='pl-12 border-1 border-gray-700 w-full py-4 px-3 rounded-xl focus:outline-none focus:border-purple-500'
                         />

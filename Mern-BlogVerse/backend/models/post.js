@@ -19,6 +19,15 @@ const postSchema = new mongoose.Schema(
             type: String,
             required: true
         },
+        readTime:{
+            type:Number,
+            required:true,
+            min:1
+        },
+        image:{
+            type:String,
+            default:""
+        },
         tags: {
             type: [String],
             default: []
